@@ -8,3 +8,7 @@ The goal of my modifications is to mimick a defined use case where two kind of p
 share the same view on a particular form, and can interact smoothly, to define their
 common goal.
 
+# Grid
+We use ag-grid to manage spreadsheet-like presentation and copy/paste feature from and
+to spreadsheets.
+https://www.ag-grid.com/angular-getting-started/

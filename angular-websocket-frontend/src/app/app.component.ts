@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { AgGridNg2 } from 'ag-grid-angular';
 import * as Stomp from 'stompjs';
 import * as SockJS from 'sockjs-client';
 import $ from 'jquery';
@@ -9,12 +11,13 @@ import * as ParseJson from 'jsonify';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
+  @ViewChild('agGrid') private agGrid: AgGridNg2;
   private serverUrl = 'http://localhost:8080/socket'
   private title = 'WebSockets chat';
   private stompClient;
 
-  constructor(){
+  constructor(private http: HttpClient) {
     this.initializeWebSocketConnection();
   }
 
@@ -41,6 +44,25 @@ export class AppComponent {
     $('#input').val('');
   }
 
+  // ag-grid specifics
+    columnDefs = [
+        {headerName: 'Make', field: 'make', checkboxSelection: false, editable: true  },
+        {headerName: 'Model', field: 'model', editable: true },
+        {headerName: 'Price', field: 'price', editable: true }
+    ];
+
+    rowData: any;
+
+    ngOnInit() {
+        this.rowData = this.http.get('https://api.myjson.com/bins/15psn9');
+    }
+
+    getSelectedRows() {
+        const selectedNodes = this.agGrid.api.getSelectedNodes();
+        const selectedData = selectedNodes.map( node => node.data );
+        const selectedDataStringPresentation = selectedData.map( node => node.make + ' ' + node.model).join(', ');
+        alert(`Selected nodes: ${selectedDataStringPresentation}`);
+    }
 }
 
  /*

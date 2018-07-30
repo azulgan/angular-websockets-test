@@ -1,7 +1,24 @@
+<button (click)="getSelectedRows()">Get Selected Rows</button>
+<ag-grid-angular
+  #agGrid
+  style="width: 500px; height: 500px;"
+  class="ag-theme-balham"
+  [enableSorting]="true"
+  [enableFilter]="true"
+  [rowData]="rowData | async"
+  [columnDefs]="columnDefs"
+  colSelection="true"
+  rowSelection="multiple"
+>
+  <!--
+  rowMultiSelectWithClick="true"
+   -->
+</ag-grid-angular>
 <div style="text-align:center">
   <h1>
     Welcome to {{title}}!
   </h1>
+
   <div class="chat-container">
     <div class="chat">
       <div class="message"></div>
