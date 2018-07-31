@@ -17,8 +17,16 @@ export class AppComponent implements OnInit {
   private title = 'WebSockets chat';
   private stompClient;
 
+  private ROLE_TRADER = "TRADER";
+  private ROLE_SALES = "SALES";
+
+  private role = this.ROLE_SALES;
+
+  private columnDefs = null;
+
   constructor(private http: HttpClient) {
     this.initializeWebSocketConnection();
+    this.calculateColumnDefs();
   }
 
   initializeWebSocketConnection(){
@@ -38,6 +46,38 @@ export class AppComponent implements OnInit {
     });
   }
 
+  switchRole() {
+    if (this.role == this.ROLE_TRADER) {
+      this.role = this.ROLE_SALES;
+    }
+    else {
+      this.role = this.ROLE_TRADER;
+    }
+    this.calculateColumnDefs();
+  }
+  assignRole(role) {
+    this.role = role;
+    this.calculateColumnDefs();
+  }
+
+  calculateColumnDefs() {
+    if (this.role == this.ROLE_TRADER) {
+      this.columnDefs = [
+          {headerName: 'ISIN', field: 'isin', checkboxSelection: false, editable: false  },
+          {headerName: 'Quantity', field: 'quantity', editable: false },
+          {headerName: 'Price', field: 'price', editable: true }
+      ];
+    }
+    else {
+      this.columnDefs = [
+          {headerName: 'ISIN', field: 'isin', checkboxSelection: false, editable: true },
+          {headerName: 'Quantity', field: 'quantity', editable: true },
+          {headerName: 'Price', field: 'price', editable: false }
+      ];
+      // todo add handler to remove the price if isin or quantity are modified. And also ignore responses from server if changed since request
+    }
+  }
+
   sendMessage(who, message){
     let json = ParseJson.stringify({ author: who, body: message});
     this.stompClient.send("/app/send/message" , {}, json);
@@ -45,23 +85,58 @@ export class AppComponent implements OnInit {
   }
 
   // ag-grid specifics
-    columnDefs = [
-        {headerName: 'Make', field: 'make', checkboxSelection: false, editable: true  },
-        {headerName: 'Model', field: 'model', editable: true },
-        {headerName: 'Price', field: 'price', editable: true }
-    ];
 
-    rowData: any;
+  rowData: any;
 
-    ngOnInit() {
-        this.rowData = this.http.get('https://api.myjson.com/bins/15psn9');
-    }
+  ngOnInit() {
+    this.calculateColumnDefs();
+    this.rowData = //this.http.get('https://api.myjson.com/bins/15psn9');
+      [{"isin":"FR0000000010","quantity":"12","price":35000},
+       {"isin":"LU0000000011","quantity":"2","price":32000}];
+  }
 
     getSelectedRows() {
         const selectedNodes = this.agGrid.api.getSelectedNodes();
         const selectedData = selectedNodes.map( node => node.data );
         const selectedDataStringPresentation = selectedData.map( node => node.make + ' ' + node.model).join(', ');
         alert(`Selected nodes: ${selectedDataStringPresentation}`);
+    }
+
+
+    myNavigation(params) {
+       var previousCell = params.previousCellDef;
+       var suggestedNextCell = params.nextCellDef;
+
+       var KEY_UP = 38;
+       var KEY_DOWN = 40;
+       var KEY_LEFT = 37;
+       var KEY_RIGHT = 39;
+
+       switch (params.key) {
+           case KEY_DOWN:
+               previousCell = params.previousCellDef;
+               // set selected cell on current cell + 1
+               agGrid.api.forEachNode( (node) => {
+                   if (previousCell.rowIndex + 1 === node.rowIndex) {
+                       node.setSelected(true);
+                   }
+               });
+               return suggestedNextCell;
+           case KEY_UP:
+               previousCell = params.previousCellDef;
+               // set selected cell on current cell - 1
+               agGrid.api.forEachNode( (node) => {
+                   if (previousCell.rowIndex - 1 === node.rowIndex) {
+                       node.setSelected(true);
+                   }
+               });
+               return suggestedNextCell;
+           case KEY_LEFT:
+           case KEY_RIGHT:
+               return suggestedNextCell;
+           default:
+               throw "this will never happen, navigation is always on of the 4 keys above";
+       }
     }
 }
 

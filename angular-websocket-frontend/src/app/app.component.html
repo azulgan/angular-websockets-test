@@ -1,3 +1,5 @@
+{{ role }}
+<button (click)="switchRole()">SwitchRole</button>
 <button (click)="getSelectedRows()">Get Selected Rows</button>
 <ag-grid-angular
   #agGrid
@@ -5,13 +7,16 @@
   class="ag-theme-balham"
   [enableSorting]="true"
   [enableFilter]="true"
-  [rowData]="rowData | async"
+  [rowData]="rowData"
   [columnDefs]="columnDefs"
   colSelection="true"
   rowSelection="multiple"
+  [navigateToNextCell]="myNavigation"
 >
   <!--
   rowMultiSelectWithClick="true"
+    [rowData]="rowData | async"
+
    -->
 </ag-grid-angular>
 <div style="text-align:center">
