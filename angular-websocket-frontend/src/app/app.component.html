@@ -17,6 +17,7 @@
   rowSelection="multiple"
   [navigateToNextCell]="myNavigation"
   rowMultiSelectWithClick="true"
+  (cellValueChanged)="onCellValueChanged($event)"
 >
   <!--
     [rowData]="rowData | async"

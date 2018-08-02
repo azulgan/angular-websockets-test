@@ -48,11 +48,19 @@ export class AppComponent implements OnInit {
             console.log(jsonMessage);
             if (jsonMessage.clientId != this.clientId) {
               that.newData(jsonMessage.body);
+              if (jsonMessage.rowIndex != undefined && jsonMessage.columnName != undefined) {
+                this.hilightValues(jsonMessage.rowIndex, jsonMessage.columnName);
+              }
             }
           }
         }
       });
     });
+  }
+
+  hilightValues(rowIndex, columnName) {
+    const api = this.agGrid.api;
+    // todo: change the cell styling in a temporary way
   }
 
   switchRole() {
@@ -92,8 +100,8 @@ export class AppComponent implements OnInit {
     this.stompClient.send("/app/send/message" , {}, json);
     $('#input').val('');
   }
-  sendUpdate(who, allData) {
-    let json = ParseJson.stringify({ author: who, clientId: this.clientId, isUpdate: true, body: allData });
+  sendUpdate(who, allData, rowIndex, columnName) {
+    let json = ParseJson.stringify({ author: who, clientId: this.clientId, isUpdate: true, body: allData, rowIndex: rowIndex, columnName: columnName });
     this.stompClient.send("/app/send/message", {}, json);
   }
 
@@ -189,6 +197,7 @@ export class AppComponent implements OnInit {
 
     newData(data) {
       var api = this.agGrid.api;
+      this.rowData = data;
       api.setRowData(data);
     }
 
@@ -203,6 +212,11 @@ export class AppComponent implements OnInit {
       this.removeFromArray(data, removeValFromIndex);
       this.newData(data);
       this.sendUpdate(this.role, data);
+    }
+    onCellValueChanged(event) {
+      //console.log(event);
+      //console.log(this.rowData);
+      this.sendUpdate(this.role, this.rowData, undefined, undefined);
     }
 
     // taken from stack overflow... TODO junit me !
