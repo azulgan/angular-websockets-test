@@ -1,14 +1,19 @@
 
 .chat-container{
-  height: 80vh;
-  width: 100vw;
+  height: 75vh;
+#  width: 100vw;
 }
 .chat{
+  float: right;
   text-align: left;
   margin: 0 auto;
   width: 50%;
   height: 100%;
   border: 1px solid grey;
+}
+
+ag-grid-angular {
+  float: left;
 }
 
 .footer{
@@ -40,4 +45,3 @@ input{
   margin-left: 5px;
 }
 
-.author { float: left }

@@ -1,10 +1,10 @@
 <div>I am a {{ role }}<button (click)="switchRole()">SwitchRole</button></div>
-
+<div>
 <button (click)="getSelectedRows()">Get Selected Rows</button>
 <button (click)="addEmptyRow()">Add row</button>
 <button (click)="duplicateRow()">Duplicate row</button>
 <button (click)="deleteSelectedRows()" *ngIf="role == 'SALES'">Delete selected rows</button>
-
+</div>
 <ag-grid-angular
   #agGrid
   style="width: 500px; height: 500px;"
@@ -24,10 +24,6 @@
    -->
 </ag-grid-angular>
 <div style="text-align:center">
-  <h1>
-    Welcome to {{title}}!
-  </h1>
-
   <div class="chat-container">
     <div class="chat">
       <div class="message"></div>
@@ -40,7 +36,7 @@
 
     <div class="send" (click)="sendMessage(name.value, input.value)">
     </div>
-    <input  id="name" type="text" #name>
+    <input  id="name" type="hidden" value="{{ role }}" #name>
     <input  id="input" type="text" #input>
 
   </div>

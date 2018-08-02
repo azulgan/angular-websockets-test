@@ -2,3 +2,6 @@
 
 @import "~ag-grid/dist/styles/ag-grid.css";
 @import "~ag-grid/dist/styles/ag-theme-balham.css";
+
+.author { float: left; padding-right: 0.5em; color: red; }
+.body { float: left; }

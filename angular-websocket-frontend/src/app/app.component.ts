@@ -40,7 +40,7 @@ export class AppComponent implements OnInit {
 
           let jsonMessage = ParseJson.parse(message.body);
           console.log(jsonMessage);
-          $(".chat").append("<div class='message'><div class='author'>" + jsonMessage.author + "</div>"+jsonMessage.body+"</div>")
+          $(".chat").append("<div class='message'><span class='author'>" + jsonMessage.author + "</span><span class='body'>"+jsonMessage.body+"</span></div>")
         }
       });
     });
