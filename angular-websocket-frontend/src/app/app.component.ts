@@ -98,7 +98,7 @@ export class AppComponent implements OnInit {
     getSelectedRows() {
         const selectedNodes = this.agGrid.api.getSelectedNodes();
         const selectedData = selectedNodes.map( node => node.data );
-        const selectedDataStringPresentation = selectedData.map( node => node.make + ' ' + node.model).join(', ');
+        const selectedDataStringPresentation = selectedData.map( node => node.isin + ' ' + node.quantity + ' ' + node.price).join(', ');
         alert(`Selected nodes: ${selectedDataStringPresentation}`);
     }
 
@@ -116,7 +116,7 @@ export class AppComponent implements OnInit {
            case KEY_DOWN:
                previousCell = params.previousCellDef;
                // set selected cell on current cell + 1
-               agGrid.api.forEachNode( (node) => {
+               this.agGrid.api.forEachNode( (node) => {
                    if (previousCell.rowIndex + 1 === node.rowIndex) {
                        node.setSelected(true);
                    }
@@ -125,7 +125,7 @@ export class AppComponent implements OnInit {
            case KEY_UP:
                previousCell = params.previousCellDef;
                // set selected cell on current cell - 1
-               agGrid.api.forEachNode( (node) => {
+               this.agGrid.api.forEachNode( (node) => {
                    if (previousCell.rowIndex - 1 === node.rowIndex) {
                        node.setSelected(true);
                    }
@@ -138,17 +138,37 @@ export class AppComponent implements OnInit {
                throw "this will never happen, navigation is always on of the 4 keys above";
        }
     }
-}
 
- /*
-import { Component } from '@angular/core';
+    selectAllRowsAfter(line) {
+      var api = this.agGrid.api;
+      api.deselectAll();
+      api.forEachNode( (node) => {
+        if (line <= node.rowIndex) {
+          node.setSelected(true);
+        }
+      });
+    }
 
-@Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
-})
-export class AppComponent {
-  title = 'app works!';
+    addEmptyRow() {
+      var api = this.agGrid.api;
+      var newData = this.rowData;
+      const newRow = newData.length;
+      newData[newData.length]={ "isin": "", quantity: "0.0", "price": "N/R"};
+      api.setRowData(newData);
+      //alert( this.rowData + "," + this.rowData.length);
+      this.selectAllRowsAfter(newRow);
+    }
+
+    duplicateRow() {
+      var api = this.agGrid.api;
+      const selectedNodes = api.getSelectedNodes();
+      const selectedData = selectedNodes.map( node => node.data );
+      var newData = this.rowData;
+      const newRow = newData.length;
+      for (let entry of selectedData) {
+        newData[newData.length] = entry;
+      }
+      api.setRowData(newData);
+      this.selectAllRowsAfter(newRow);
+    }
 }
-   */
