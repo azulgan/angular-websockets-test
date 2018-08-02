@@ -23,10 +23,12 @@ export class AppComponent implements OnInit {
   private role = this.ROLE_SALES;
 
   private columnDefs = null;
+  private clientId;
 
   constructor(private http: HttpClient) {
     this.initializeWebSocketConnection();
     this.calculateColumnDefs();
+    this.clientId = this.makeid(10);
   }
 
   initializeWebSocketConnection(){
@@ -36,11 +38,18 @@ export class AppComponent implements OnInit {
     this.stompClient.connect({}, function(frame) {
       that.stompClient.subscribe("/chat", (message) => {
         if(message.body) {
-          console.log(message.body);
-
+          //console.log(message.body);
           let jsonMessage = ParseJson.parse(message.body);
-          console.log(jsonMessage);
-          $(".chat").append("<div class='message'><span class='author'>" + jsonMessage.author + "</span><span class='body'>"+jsonMessage.body+"</span></div>")
+          if (jsonMessage.isUpdate == undefined || !jsonMessage.isUpdate) {
+            $(".chat").append("<div class='message'><span class='author'>" + jsonMessage.author + "</span><span class='body'>"+jsonMessage.body+"</span></div>")
+          }
+          else {
+            // array update received
+            console.log(jsonMessage);
+            if (jsonMessage.clientId != this.clientId) {
+              that.newData(jsonMessage.body);
+            }
+          }
         }
       });
     });
@@ -79,9 +88,13 @@ export class AppComponent implements OnInit {
   }
 
   sendMessage(who, message){
-    let json = ParseJson.stringify({ author: who, body: message});
+    let json = ParseJson.stringify({ author: who, isUpdate: false, body: message});
     this.stompClient.send("/app/send/message" , {}, json);
     $('#input').val('');
+  }
+  sendUpdate(who, allData) {
+    let json = ParseJson.stringify({ author: who, clientId: this.clientId, isUpdate: true, body: allData });
+    this.stompClient.send("/app/send/message", {}, json);
   }
 
   // ag-grid specifics
@@ -154,9 +167,10 @@ export class AppComponent implements OnInit {
       var newData = this.rowData;
       const newRow = newData.length;
       newData[newData.length]={ "isin": "", quantity: "0.0", "price": "N/R"};
-      api.setRowData(newData);
+      this.newData(newData);
       //alert( this.rowData + "," + this.rowData.length);
       this.selectAllRowsAfter(newRow);
+      this.sendUpdate(this.role, newData);
     }
 
     duplicateRow() {
@@ -168,8 +182,14 @@ export class AppComponent implements OnInit {
       for (let entry of selectedData) {
         newData[newData.length] = entry;
       }
-      api.setRowData(newData);
+      this.newData(newData);
       this.selectAllRowsAfter(newRow);
+      this.sendUpdate(this.role, newData);
+    }
+
+    newData(data) {
+      var api = this.agGrid.api;
+      api.setRowData(data);
     }
 
     deleteSelectedRows() {
@@ -181,7 +201,8 @@ export class AppComponent implements OnInit {
         removeValFromIndex[removeValFromIndex.length] = index;
       });
       this.removeFromArray(data, removeValFromIndex);
-      api.setRowData(data);
+      this.newData(data);
+      this.sendUpdate(this.role, data);
     }
 
     // taken from stack overflow... TODO junit me !
@@ -189,5 +210,16 @@ export class AppComponent implements OnInit {
       for (var i = ascOrderedIndexArray.length -1; i >= 0; i--) {
         array.splice(ascOrderedIndexArray[i],1);
       }
+    }
+
+    // same
+    makeid(length) {
+      var text = "";
+      var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+      for (var i = 0; i < length; i++)
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+      return text;
     }
 }
