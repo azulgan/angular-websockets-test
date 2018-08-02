@@ -70,7 +70,7 @@ export class AppComponent implements OnInit {
     }
     else {
       this.columnDefs = [
-          {headerName: 'ISIN', field: 'isin', checkboxSelection: false, editable: true },
+          {headerName: 'ISIN', field: 'isin', checkboxSelection: true, editable: true },
           {headerName: 'Quantity', field: 'quantity', editable: true },
           {headerName: 'Price', field: 'price', editable: false }
       ];
@@ -170,5 +170,24 @@ export class AppComponent implements OnInit {
       }
       api.setRowData(newData);
       this.selectAllRowsAfter(newRow);
+    }
+
+    deleteSelectedRows() {
+      var api = this.agGrid.api;
+      const rows = api.getSelectedRows();
+      var data = this.rowData;
+      var removeValFromIndex = [];
+      rows.forEach((selectedRow, index) => {
+        removeValFromIndex[removeValFromIndex.length] = index;
+      });
+      this.removeFromArray(data, removeValFromIndex);
+      api.setRowData(data);
+    }
+
+    // taken from stack overflow... TODO junit me !
+    removeFromArray(array, ascOrderedIndexArray) {
+      for (var i = ascOrderedIndexArray.length -1; i >= 0; i--) {
+        array.splice(ascOrderedIndexArray[i],1);
+      }
     }
 }

@@ -1,8 +1,10 @@
-{{ role }}
-<button (click)="switchRole()">SwitchRole</button>
+<div>I am a {{ role }}<button (click)="switchRole()">SwitchRole</button></div>
+
 <button (click)="getSelectedRows()">Get Selected Rows</button>
 <button (click)="addEmptyRow()">Add row</button>
 <button (click)="duplicateRow()">Duplicate row</button>
+<button (click)="deleteSelectedRows()" *ngIf="role == 'SALES'">Delete selected rows</button>
+
 <ag-grid-angular
   #agGrid
   style="width: 500px; height: 500px;"
@@ -14,9 +16,9 @@
   colSelection="true"
   rowSelection="multiple"
   [navigateToNextCell]="myNavigation"
+  rowMultiSelectWithClick="true"
 >
   <!--
-  rowMultiSelectWithClick="true"
     [rowData]="rowData | async"
 
    -->
