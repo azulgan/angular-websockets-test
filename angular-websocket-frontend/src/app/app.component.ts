@@ -1,5 +1,6 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import {DOCUMENT} from '@angular/platform-browser';
 import { AgGridNg2 } from 'ag-grid-angular';
 import * as Stomp from 'stompjs';
 import * as SockJS from 'sockjs-client';
@@ -13,7 +14,8 @@ import * as ParseJson from 'jsonify';
 })
 export class AppComponent implements OnInit {
   @ViewChild('agGrid') private agGrid: AgGridNg2;
-  private serverUrl = 'http://localhost:7649/socket'
+  //private serverUrl = 'http://localhost:7649/socket'
+  private serverUrl;
   private title = 'WebSockets chat';
   private stompClient;
 
@@ -25,7 +27,9 @@ export class AppComponent implements OnInit {
   columnDefs = null;
   readonly clientId;
 
-  constructor(private http: HttpClient) {
+  constructor(@Inject(DOCUMENT) private document, private http: HttpClient) {
+    this.serverUrl = document.location.protocol +'//'+ document.location.hostname + ':7649/socket';
+    console.log(this.serverUrl);
     this.initializeWebSocketConnection();
     this.calculateColumnDefs();
     this.clientId = this.makeid(10);
