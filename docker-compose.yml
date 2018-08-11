@@ -1,0 +1,16 @@
+version: '3'
+services:
+  frontend:
+    build:
+      context: angular-websocket-frontend/.
+    ports:
+      - "7650:1080"
+    depends_on:
+      - backend
+  backend:
+    build:
+      context: .
+      args:
+        JAR_FILE: target/angular-websocket-example-1.0-SNAPSHOT.jar
+    ports:
+      - "7649:7649"

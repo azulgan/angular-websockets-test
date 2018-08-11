@@ -13,17 +13,17 @@ import * as ParseJson from 'jsonify';
 })
 export class AppComponent implements OnInit {
   @ViewChild('agGrid') private agGrid: AgGridNg2;
-  private serverUrl = 'http://localhost:8080/socket'
+  private serverUrl = 'http://localhost:7649/socket'
   private title = 'WebSockets chat';
   private stompClient;
 
   private ROLE_TRADER = "TRADER";
   private ROLE_SALES = "SALES";
 
-  private role = this.ROLE_SALES;
+  role = this.ROLE_SALES;
 
-  private columnDefs = null;
-  private clientId;
+  columnDefs = null;
+  readonly clientId;
 
   constructor(private http: HttpClient) {
     this.initializeWebSocketConnection();
@@ -178,7 +178,7 @@ export class AppComponent implements OnInit {
       this.newData(newData);
       //alert( this.rowData + "," + this.rowData.length);
       this.selectAllRowsAfter(newRow);
-      this.sendUpdate(this.role, newData);
+      this.sendUpdate(this.role, newData, undefined, undefined);
     }
 
     duplicateRow() {
@@ -192,7 +192,7 @@ export class AppComponent implements OnInit {
       }
       this.newData(newData);
       this.selectAllRowsAfter(newRow);
-      this.sendUpdate(this.role, newData);
+      this.sendUpdate(this.role, newData, undefined, undefined);
     }
 
     newData(data) {
@@ -211,7 +211,7 @@ export class AppComponent implements OnInit {
       });
       this.removeFromArray(data, removeValFromIndex);
       this.newData(data);
-      this.sendUpdate(this.role, data);
+      this.sendUpdate(this.role, data, undefined, undefined);
     }
     onCellValueChanged(event) {
       //console.log(event);
