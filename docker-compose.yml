@@ -5,6 +5,9 @@ services:
       context: angular-websocket-frontend/.
     ports:
       - "7650:1080"
+#      - "80:1080"
+#      - 127.0.0.1:80:80
+      - 0.0.0.0:80:80
     depends_on:
       - backend
   backend:

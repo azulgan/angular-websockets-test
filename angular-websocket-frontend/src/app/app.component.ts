@@ -14,6 +14,9 @@ import * as ParseJson from 'jsonify';
 })
 export class AppComponent implements OnInit {
   @ViewChild('agGrid') private agGrid: AgGridNg2;
+  //private wsPort = 7649;
+  private wsPort = 80;
+
   //private serverUrl = 'http://localhost:7649/socket'
   private serverUrl;
   private title = 'WebSockets chat';
@@ -28,7 +31,12 @@ export class AppComponent implements OnInit {
   readonly clientId;
 
   constructor(@Inject(DOCUMENT) private document, private http: HttpClient) {
-    this.serverUrl = document.location.protocol +'//'+ document.location.hostname + ':7649/socket';
+    if (document.location.port == 4200) {
+      console.log("adjusting ws port to 7649 since the current server is :4200");
+      this.wsPort = 7649;
+    }
+    this.serverUrl = document.location.protocol +'//'+ document.location.hostname +
+                    ':' + this.wsPort + '/socket';
     console.log(this.serverUrl);
     this.initializeWebSocketConnection();
     this.calculateColumnDefs();
