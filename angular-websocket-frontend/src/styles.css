@@ -5,3 +5,12 @@
 
 .author { float: left; padding-right: 0.5em; color: red; }
 .body { float: left; }
+
+
+
+.trader{
+  background-color: lightgreen;
+}
+.sales {
+  background-color: orange;
+}

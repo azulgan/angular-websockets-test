@@ -72,6 +72,11 @@ export class AppComponent implements OnInit {
 
   hilightValues(rowIndex, columnName) {
     const api = this.agGrid.api;
+//    console.log(api.forEachNode);
+//    var callback = function(obj) {
+//       console.log(obj);
+//    }
+//    api.forEachNode(callback);
     // todo: change the cell styling in a temporary way
   }
 
@@ -90,18 +95,22 @@ export class AppComponent implements OnInit {
   }
 
   calculateColumnDefs() {
+    let myClassRules = {
+            'trader': function(params) { return params.data.lastModifiedBy == 'TRADER'; },
+            'sales': function(params) { return params.data.lastModifiedBy == 'SALES'; },
+          };
     if (this.role == this.ROLE_TRADER) {
       this.columnDefs = [
-          {headerName: 'ISIN', field: 'isin', checkboxSelection: false, editable: false  },
-          {headerName: 'Quantity', field: 'quantity', editable: false },
-          {headerName: 'Price', field: 'price', editable: true }
+          {headerName: 'ISIN', field: 'isin', checkboxSelection: false, editable: false, cellClassRules: myClassRules },
+          {headerName: 'Quantity', field: 'quantity', editable: false, cellClassRules: myClassRules },
+          {headerName: 'Price', field: 'price', editable: true, cellClassRules: myClassRules }
       ];
     }
     else {
       this.columnDefs = [
-          {headerName: 'ISIN', field: 'isin', checkboxSelection: true, editable: true },
-          {headerName: 'Quantity', field: 'quantity', editable: true },
-          {headerName: 'Price', field: 'price', editable: false }
+          {headerName: 'ISIN', field: 'isin', checkboxSelection: true, editable: true, cellClassRules: myClassRules },
+          {headerName: 'Quantity', field: 'quantity', editable: true, cellClassRules: myClassRules },
+          {headerName: 'Price', field: 'price', editable: false, cellClassRules: myClassRules }
       ];
       // todo add handler to remove the price if isin or quantity are modified. And also ignore responses from server if changed since request
     }
@@ -124,8 +133,8 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.calculateColumnDefs();
     this.rowData = //this.http.get('https://api.myjson.com/bins/15psn9');
-      [{"isin":"FR0000000010","quantity":"12","price":35000},
-       {"isin":"LU0000000011","quantity":"2","price":32000}];
+      [{"isin":"FR0000000010","quantity":"12","price":35000,"lastModifiedBy":"SALES"},
+       {"isin":"LU0000000011","quantity":"2","price":32000,"lastModifiedBy":"TRADER"}];
   }
 
     getSelectedRows() {
@@ -186,7 +195,7 @@ export class AppComponent implements OnInit {
       var api = this.agGrid.api;
       var newData = this.rowData;
       const newRow = newData.length;
-      newData[newData.length]={ "isin": "", quantity: "0.0", "price": "N/R"};
+      newData[newData.length]={ "isin": "", quantity: "0.0", "price": "N/R", "lastModifiedBy": this.role};
       this.newData(newData);
       //alert( this.rowData + "," + this.rowData.length);
       this.selectAllRowsAfter(newRow);
@@ -200,7 +209,9 @@ export class AppComponent implements OnInit {
       var newData = this.rowData;
       const newRow = newData.length;
       for (let entry of selectedData) {
-        newData[newData.length] = entry;
+        let newEntry = { ...entry };
+        newEntry.lastModifiedBy = this.role;
+        newData[newData.length] = newEntry;
       }
       this.newData(newData);
       this.selectAllRowsAfter(newRow);
@@ -226,9 +237,10 @@ export class AppComponent implements OnInit {
       this.sendUpdate(this.role, data, undefined, undefined);
     }
     onCellValueChanged(event) {
-      //console.log(event);
+      console.log(event);
       //console.log(this.rowData);
-      this.sendUpdate(this.role, this.rowData, undefined, undefined);
+      this.rowData[event.rowIndex].lastModifiedBy = this.role;
+      this.sendUpdate(this.role, this.rowData, undefined, event.colId);
     }
 
     // taken from stack overflow... TODO junit me !
