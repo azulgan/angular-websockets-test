@@ -14,3 +14,7 @@
 .sales {
   background-color: orange;
 }
+
+.message {
+  display: block;
+}

@@ -25,7 +25,7 @@ export class AppComponent implements OnInit {
   private ROLE_TRADER = "TRADER";
   private ROLE_SALES = "SALES";
 
-  private myNavigation; // defined in the constructor
+  public myNavigation; // defined in the constructor
   role = this.ROLE_SALES;
 
   columnDefs = null;
@@ -96,7 +96,7 @@ export class AppComponent implements OnInit {
           //console.log(message.body);
           let jsonMessage = ParseJson.parse(message.body);
           if (jsonMessage.isUpdate == undefined || !jsonMessage.isUpdate) {
-            $(".chat").append("<div class='message'><span class='author'>" + jsonMessage.author + "</span><span class='body'>"+jsonMessage.body+"</span></div>")
+            $(".chat").append("<div class='message' style='display: block'><span class='author'>" + jsonMessage.author + "</span><span class='body'>"+jsonMessage.body+"</span></div><br/>")
           }
           else {
             // array update received
@@ -159,6 +159,13 @@ export class AppComponent implements OnInit {
       ];
       // todo add handler to remove the price if isin or quantity are modified. And also ignore responses from server if changed since request
     }
+  }
+
+  isReturn(event) {
+    if (event.key != "Enter") {
+        return false;
+    }
+    return true;
   }
 
   sendMessage(who, message){

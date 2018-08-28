@@ -37,7 +37,7 @@
 
     <div class="send" (click)="sendMessage(name.value, input.value)">
     </div>
-    <input  id="name" type="hidden" value="{{ role }}{{ clientId }}" #name>
+    <input  id="name" type="hidden" value="{{ role }}" #name (keyup.enter)="sendMessage(name.value, input.value)">              <!-- {{ clientId }} -->
     <input  id="input" type="text" #input>
 
   </div>
