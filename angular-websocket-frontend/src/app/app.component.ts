@@ -25,6 +25,7 @@ export class AppComponent implements OnInit {
   private ROLE_TRADER = "TRADER";
   private ROLE_SALES = "SALES";
 
+  private myNavigation; // defined in the constructor
   role = this.ROLE_SALES;
 
   columnDefs = null;
@@ -41,6 +42,48 @@ export class AppComponent implements OnInit {
     this.initializeWebSocketConnection();
     this.calculateColumnDefs();
     this.clientId = this.makeid(10);
+
+    this.myNavigation = function myNavigation(params) {
+       var previousCell = params.previousCellDef;
+       var suggestedNextCell = params.nextCellDef;
+
+       var KEY_UP = 38;
+       var KEY_DOWN = 40;
+       var KEY_LEFT = 37;
+       var KEY_RIGHT = 39;
+       var zis = this;
+       switch (params.key) {
+           case KEY_DOWN:
+               previousCell = params.previousCellDef;
+               // set selected cell on current cell + 1
+// FIXME missing global reference gridOptions
+/*
+               gridOptions.api.forEachNode( (node) => {
+                   if (previousCell.rowIndex + 1 === node.rowIndex) {
+                       node.setSelected(true);
+                   }
+               });
+*/
+               return suggestedNextCell;
+           case KEY_UP:
+               previousCell = params.previousCellDef;
+               // set selected cell on current cell - 1
+// FIXME missing global reference gridOptions
+/*
+               gridOptions.api.forEachNode( (node) => {
+                   if (previousCell.rowIndex - 1 === node.rowIndex) {
+                       node.setSelected(true);
+                   }
+               });
+*/
+               return suggestedNextCell;
+           case KEY_LEFT:
+           case KEY_RIGHT:
+               return suggestedNextCell;
+           default:
+               throw "this will never happen, navigation is always on of the 4 keys above";
+       }
+    };
   }
 
   initializeWebSocketConnection(){
@@ -103,6 +146,7 @@ export class AppComponent implements OnInit {
       this.columnDefs = [
           {headerName: 'ISIN', field: 'isin', checkboxSelection: false, editable: false, cellClassRules: myClassRules },
           {headerName: 'Quantity', field: 'quantity', editable: false, cellClassRules: myClassRules },
+          {headerName: 'Value Date', field: 'valueDate', editable: true, cellClassRules: myClassRules },
           {headerName: 'Price', field: 'price', editable: true, cellClassRules: myClassRules }
       ];
     }
@@ -110,6 +154,7 @@ export class AppComponent implements OnInit {
       this.columnDefs = [
           {headerName: 'ISIN', field: 'isin', checkboxSelection: true, editable: true, cellClassRules: myClassRules },
           {headerName: 'Quantity', field: 'quantity', editable: true, cellClassRules: myClassRules },
+          {headerName: 'Value Date', field: 'valueDate', editable: true, cellClassRules: myClassRules },
           {headerName: 'Price', field: 'price', editable: false, cellClassRules: myClassRules }
       ];
       // todo add handler to remove the price if isin or quantity are modified. And also ignore responses from server if changed since request
@@ -133,8 +178,8 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.calculateColumnDefs();
     this.rowData = //this.http.get('https://api.myjson.com/bins/15psn9');
-      [{"isin":"FR0000000010","quantity":"12","price":35000,"lastModifiedBy":"SALES"},
-       {"isin":"LU0000000011","quantity":"2","price":32000,"lastModifiedBy":"TRADER"}];
+      [{"isin":"FR0000000010","quantity":"12","valueDate":"2018-09-10","price":35000,"lastModifiedBy":"SALES"},
+       {"isin":"LU0000000011","quantity":"2","valueDate":"2018-09-11","price":32000,"lastModifiedBy":"TRADER"}];
   }
 
     getSelectedRows() {
@@ -142,43 +187,6 @@ export class AppComponent implements OnInit {
         const selectedData = selectedNodes.map( node => node.data );
         const selectedDataStringPresentation = selectedData.map( node => node.isin + ' ' + node.quantity + ' ' + node.price).join(', ');
         alert(`Selected nodes: ${selectedDataStringPresentation}`);
-    }
-
-
-    myNavigation(params) {
-       var previousCell = params.previousCellDef;
-       var suggestedNextCell = params.nextCellDef;
-
-       var KEY_UP = 38;
-       var KEY_DOWN = 40;
-       var KEY_LEFT = 37;
-       var KEY_RIGHT = 39;
-
-       switch (params.key) {
-           case KEY_DOWN:
-               previousCell = params.previousCellDef;
-               // set selected cell on current cell + 1
-               this.agGrid.api.forEachNode( (node) => {
-                   if (previousCell.rowIndex + 1 === node.rowIndex) {
-                       node.setSelected(true);
-                   }
-               });
-               return suggestedNextCell;
-           case KEY_UP:
-               previousCell = params.previousCellDef;
-               // set selected cell on current cell - 1
-               this.agGrid.api.forEachNode( (node) => {
-                   if (previousCell.rowIndex - 1 === node.rowIndex) {
-                       node.setSelected(true);
-                   }
-               });
-               return suggestedNextCell;
-           case KEY_LEFT:
-           case KEY_RIGHT:
-               return suggestedNextCell;
-           default:
-               throw "this will never happen, navigation is always on of the 4 keys above";
-       }
     }
 
     selectAllRowsAfter(line) {
