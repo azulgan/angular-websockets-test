@@ -1,10 +1,11 @@
 
 .chat-container{
-  height: 75vh;
+  height: 25vh;
 #  width: 100vw;
+  width: 2400px;
 }
 .chat{
-  float: right;
+  float: left;
   text-align: left;
   margin: 0 auto;
   width: 50%;

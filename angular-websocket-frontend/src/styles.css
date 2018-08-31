@@ -18,3 +18,7 @@
 .message {
   display: block;
 }
+
+.grid-right-align {
+    text-align: right;
+}

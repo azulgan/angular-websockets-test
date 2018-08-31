@@ -30,6 +30,7 @@ export class AppComponent implements OnInit {
 
   columnDefs = null;
   readonly clientId;
+  private nextId = 3;
 
   constructor(@Inject(DOCUMENT) private document, private http: HttpClient) {
     if (document.location.port == 4200) {
@@ -145,17 +146,17 @@ export class AppComponent implements OnInit {
     if (this.role == this.ROLE_TRADER) {
       this.columnDefs = [
           {headerName: 'ISIN', field: 'isin', checkboxSelection: false, editable: false, cellClassRules: myClassRules },
-          {headerName: 'Quantity', field: 'quantity', editable: false, cellClassRules: myClassRules },
+          {headerName: 'Quantity', field: 'quantity', editable: false, cellClass: 'grid-right-align', cellClassRules: myClassRules },
           {headerName: 'Value Date', field: 'valueDate', editable: true, cellClassRules: myClassRules },
-          {headerName: 'Price', field: 'price', editable: true, cellClassRules: myClassRules }
+          {headerName: 'Price', field: 'price', editable: true, cellClass: 'grid-right-align', cellClassRules: myClassRules }
       ];
     }
     else {
       this.columnDefs = [
           {headerName: 'ISIN', field: 'isin', checkboxSelection: true, editable: true, cellClassRules: myClassRules },
-          {headerName: 'Quantity', field: 'quantity', editable: true, cellClassRules: myClassRules },
+          {headerName: 'Quantity', field: 'quantity', editable: true, cellClass: 'grid-right-align', cellClassRules: myClassRules },
           {headerName: 'Value Date', field: 'valueDate', editable: true, cellClassRules: myClassRules },
-          {headerName: 'Price', field: 'price', editable: false, cellClassRules: myClassRules }
+          {headerName: 'Price', field: 'price', editable: false, cellClass: 'grid-right-align', cellClassRules: myClassRules }
       ];
       // todo add handler to remove the price if isin or quantity are modified. And also ignore responses from server if changed since request
     }
@@ -185,8 +186,8 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.calculateColumnDefs();
     this.rowData = //this.http.get('https://api.myjson.com/bins/15psn9');
-      [{"isin":"FR0000000010","quantity":"12","valueDate":"2018-09-10","price":35000,"lastModifiedBy":"SALES"},
-       {"isin":"LU0000000011","quantity":"2","valueDate":"2018-09-11","price":32000,"lastModifiedBy":"TRADER"}];
+      [{"id":1,"isin":"FR0000000010","quantity":"12","valueDate":"2018-09-10","price":35000,"lastModifiedBy":"SALES"},
+       {"id":2,"isin":"LU0000000011","quantity":"2","valueDate":"2018-09-11","price":32000,"lastModifiedBy":"TRADER"}];
   }
 
     getSelectedRows() {
@@ -210,7 +211,8 @@ export class AppComponent implements OnInit {
       var api = this.agGrid.api;
       var newData = this.rowData;
       const newRow = newData.length;
-      newData[newData.length]={ "isin": "", quantity: "0.0", "price": "N/R", "lastModifiedBy": this.role};
+      newData[newData.length]={ "id": this.nextId, "isin": "", quantity: "0.0", "price": "N/R", "lastModifiedBy": this.role};
+      this.nextId++;
       this.newData(newData);
       //alert( this.rowData + "," + this.rowData.length);
       this.selectAllRowsAfter(newRow);
@@ -225,6 +227,8 @@ export class AppComponent implements OnInit {
       const newRow = newData.length;
       for (let entry of selectedData) {
         let newEntry = { ...entry };
+        newEntry.id = this.nextId;
+        this.nextId++;
         newEntry.lastModifiedBy = this.role;
         newData[newData.length] = newEntry;
       }
@@ -245,21 +249,52 @@ export class AppComponent implements OnInit {
       var data = this.rowData;
       var removeValFromIndex = [];
       rows.forEach((selectedRow, index) => {
-        removeValFromIndex[removeValFromIndex.length] = index;
+        removeValFromIndex[removeValFromIndex.length] = selectedRow.id;
       });
       this.removeFromArray(data, removeValFromIndex);
       this.newData(data);
       this.sendUpdate(this.role, data, undefined, undefined);
     }
+    executeSelectedRows() {
+      var api = this.agGrid.api;
+      const rows = api.getSelectedRows();
+      var data = this.rowData;
+      var removeValFromIndex = [];
+      var removedLinesData = [];
+      rows.forEach((selectedRow, index) => {
+        let line = selectedRow;
+        if (line.lastModifiedBy === "TRADER") {
+          removeValFromIndex[removeValFromIndex.length] = selectedRow.id;
+          removedLinesData[removedLinesData.length] = line.isin + "/" + line.quantity + "/" + line.valueDate + "/" + line.price + "\n";
+        }
+        else {
+          removedLinesData[removedLinesData.length] = "Can't select line " + index + ", not validated by trader" + "\n";
+        }
+      });
+      this.removeFromArray(data, removeValFromIndex);
+      alert("Execution requested for " + removedLinesData);
+      this.newData(data);
+      this.sendUpdate(this.role, data, undefined, undefined);
+    }
+
     onCellValueChanged(event) {
       console.log(event);
       //console.log(this.rowData);
       this.rowData[event.rowIndex].lastModifiedBy = this.role;
       this.sendUpdate(this.role, this.rowData, undefined, event.colId);
     }
+    removeFromArray(array, ids) {
+      var ascOrderedIndexArray = [];
+      for (var i = 0; i < array.length; i++) {
+        if (ids.indexOf(array[i].id) > -1) {
+          ascOrderedIndexArray[ascOrderedIndexArray.length] = i;
+        }
+      }
+      this.technicalRemoveFromArray(array, ascOrderedIndexArray);
+    }
 
-    // taken from stack overflow... TODO junit me !
-    removeFromArray(array, ascOrderedIndexArray) {
+    // taken from stack overflow... TODO unit test me !
+    technicalRemoveFromArray(array, ascOrderedIndexArray) {
       for (var i = ascOrderedIndexArray.length -1; i >= 0; i--) {
         array.splice(ascOrderedIndexArray[i],1);
       }
