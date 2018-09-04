@@ -30,7 +30,7 @@ ag-grid-angular {
   height: 70%;
   width: 50%;
 }
-input{
+input.chat{
   float: right;
   height: 30px;
   border-radius: 15px;

@@ -1,4 +1,8 @@
-<div>I am a {{ role }}<button (click)="switchRole()">SwitchRole</button></div>
+<hr />
+<div>POC Settings zone: I am a {{ role }}<button (click)="switchRole()">SwitchRole</button>
+  <div style="float: right">Chat color: <input [(ngModel)]="clientColor" [style.color]="clientColor"/><button (click)="switchColor()">Change</button></div>
+</div>
+<hr />
 <div>
 <button (click)="getSelectedRows()">Get Selected Rows</button>
 <button (click)="addEmptyRow()">Add row</button>
@@ -38,8 +42,8 @@
 
     <div class="send" (click)="sendMessage(name.value, input.value)">
     </div>
-    <input  id="name" type="hidden" value="{{ role }}" #name (keyup.enter)="sendMessage(name.value, input.value)">              <!-- {{ clientId }} -->
-    <input  id="input" type="text" #input>
+    <input  id="name" type="hidden" value="{{ role }}" #name />              <!-- {{ clientId }} -->
+    <input class="chat" id="input" type="text" #input (keyup.enter)="sendMessage(name.value, input.value)" />
 
   </div>
 

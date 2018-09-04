@@ -30,6 +30,7 @@ export class AppComponent implements OnInit {
 
   columnDefs = null;
   readonly clientId;
+  private clientColor;
   private nextId = 3;
 
   constructor(@Inject(DOCUMENT) private document, private http: HttpClient) {
@@ -43,6 +44,7 @@ export class AppComponent implements OnInit {
     this.initializeWebSocketConnection();
     this.calculateColumnDefs();
     this.clientId = this.makeid(10);
+    this.clientColor = this.makeColor();
 
     this.myNavigation = function myNavigation(params) {
        var previousCell = params.previousCellDef;
@@ -97,7 +99,8 @@ export class AppComponent implements OnInit {
           //console.log(message.body);
           let jsonMessage = ParseJson.parse(message.body);
           if (jsonMessage.isUpdate == undefined || !jsonMessage.isUpdate) {
-            $(".chat").append("<div class='message' style='display: block'><span class='author'>" + jsonMessage.author + "</span><span class='body'>"+jsonMessage.body+"</span></div><br/>")
+            let color = jsonMessage.color;
+            $(".chat").append("<div class='message' style='display: block; color: " + color + "'><span class='author'>" + jsonMessage.author + "</span><span class='body'>"+jsonMessage.body+"</span></div><br/>")
           }
           else {
             // array update received
@@ -170,7 +173,7 @@ export class AppComponent implements OnInit {
   }
 
   sendMessage(who, message){
-    let json = ParseJson.stringify({ author: who, isUpdate: false, body: message});
+    let json = ParseJson.stringify({ author: who, isUpdate: false, body: message, color: this.clientColor });
     this.stompClient.send("/app/send/message" , {}, json);
     $('#input').val('');
   }
@@ -301,13 +304,22 @@ export class AppComponent implements OnInit {
     }
 
     // same
-    makeid(length) {
+    makeRandom(length, possible) {
       var text = "";
-      var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
       for (var i = 0; i < length; i++)
         text += possible.charAt(Math.floor(Math.random() * possible.length));
 
       return text;
+    }
+    makeid(length) {
+      var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      return this.makeRandom(length, possible);
+    }
+    makeColor() {
+      var possible = "ABCDEF0123456789";
+      return "#" + this.makeRandom(6, possible);
+    }
+    switchColor() {
+      this.clientColor = this.makeColor();
     }
 }
