@@ -30,8 +30,10 @@ export class AppComponent implements OnInit {
 
   columnDefs = null;
   readonly clientId;
-  private clientColor;
+  public clientColor;
   private nextId = 3;
+  public myNumberFormatter;
+  public myPriceFormatter;
 
   constructor(@Inject(DOCUMENT) private document, private http: HttpClient) {
     if (document.location.port == 4200) {
@@ -86,6 +88,16 @@ export class AppComponent implements OnInit {
            default:
                throw "this will never happen, navigation is always on of the 4 keys above";
        }
+    };
+    this.myNumberFormatter = function(number) {
+      let formatted = new Intl.NumberFormat('en-US', { style: 'decimal', useGrouping: true, minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(number.value);
+      //console.log(formatted);
+      return formatted;
+    };
+    this.myPriceFormatter = function(number) {
+      let formatted = new Intl.NumberFormat('en-US', { style: 'decimal', useGrouping: true, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(number.value);
+      //console.log(formatted);
+      return formatted;
     };
   }
 
@@ -149,17 +161,21 @@ export class AppComponent implements OnInit {
     if (this.role == this.ROLE_TRADER) {
       this.columnDefs = [
           {headerName: 'ISIN', field: 'isin', checkboxSelection: false, editable: false, cellClassRules: myClassRules },
-          {headerName: 'Quantity', field: 'quantity', editable: false, cellClass: 'grid-right-align', cellClassRules: myClassRules },
+          {headerName: 'Quantity', field: 'quantity', editable: false, cellClass: 'grid-right-align',
+              cellClassRules: myClassRules, valueFormatter: this.myNumberFormatter },
           {headerName: 'Value Date', field: 'valueDate', editable: true, cellClassRules: myClassRules },
-          {headerName: 'Price', field: 'price', editable: true, cellClass: 'grid-right-align', cellClassRules: myClassRules }
+          {headerName: 'Price', field: 'price', editable: true, cellClass: 'grid-right-align', cellClassRules: myClassRules,
+              valueFormatter: this.myPriceFormatter }
       ];
     }
     else {
       this.columnDefs = [
           {headerName: 'ISIN', field: 'isin', checkboxSelection: true, editable: true, cellClassRules: myClassRules },
-          {headerName: 'Quantity', field: 'quantity', editable: true, cellClass: 'grid-right-align', cellClassRules: myClassRules },
+          {headerName: 'Quantity', field: 'quantity', editable: true, cellClass: 'grid-right-align', cellClassRules: myClassRules,
+              valueFormatter: this.myNumberFormatter },
           {headerName: 'Value Date', field: 'valueDate', editable: true, cellClassRules: myClassRules },
-          {headerName: 'Price', field: 'price', editable: false, cellClass: 'grid-right-align', cellClassRules: myClassRules }
+          {headerName: 'Price', field: 'price', editable: false, cellClass: 'grid-right-align', cellClassRules: myClassRules,
+              valueFormatter: this.myPriceFormatter }
       ];
       // todo add handler to remove the price if isin or quantity are modified. And also ignore responses from server if changed since request
     }
@@ -189,8 +205,8 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.calculateColumnDefs();
     this.rowData = //this.http.get('https://api.myjson.com/bins/15psn9');
-      [{"id":1,"isin":"FR0000000010","quantity":"12","valueDate":"2018-09-10","price":35000,"lastModifiedBy":"SALES"},
-       {"id":2,"isin":"LU0000000011","quantity":"2","valueDate":"2018-09-11","price":32000,"lastModifiedBy":"TRADER"}];
+      [{"id":1,"isin":"FR0000000010","quantity":"1234","valueDate":"2018-09-10","price":35004,"lastModifiedBy":"SALES"},
+       {"id":2,"isin":"LU0000000011","quantity":"2","valueDate":"2018-09-11","price":32000.33,"lastModifiedBy":"TRADER"}];
   }
 
     getSelectedRows() {
