@@ -160,7 +160,8 @@ export class AppComponent implements OnInit {
           };
     if (this.role == this.ROLE_TRADER) {
       this.columnDefs = [
-          {headerName: 'ISIN', field: 'isin', checkboxSelection: false, editable: false, cellClassRules: myClassRules },
+          {headerName: 'Direction', field: 'direction', editable: false, cellClassRules: myClassRules },
+          {headerName: 'ISIN', field: 'isin', editable: false, cellClassRules: myClassRules },
           {headerName: 'Quantity', field: 'quantity', editable: false, cellClass: 'grid-right-align',
               cellClassRules: myClassRules, valueFormatter: this.myNumberFormatter },
           {headerName: 'Value Date', field: 'valueDate', editable: true, cellClassRules: myClassRules },
@@ -170,7 +171,9 @@ export class AppComponent implements OnInit {
     }
     else {
       this.columnDefs = [
-          {headerName: 'ISIN', field: 'isin', checkboxSelection: true, editable: true, cellClassRules: myClassRules },
+          {headerName: 'Direction', field: 'direction', checkboxSelection: true, editable: true, cellClassRules: myClassRules,
+             cellEditor: 'agSelectCellEditor', cellEditorParams: { values: ['Borrow Sec', 'Lend Sec' ] } },
+          {headerName: 'ISIN', field: 'isin', editable: true, cellClassRules: myClassRules },
           {headerName: 'Quantity', field: 'quantity', editable: true, cellClass: 'grid-right-align', cellClassRules: myClassRules,
               valueFormatter: this.myNumberFormatter },
           {headerName: 'Value Date', field: 'valueDate', editable: true, cellClassRules: myClassRules },
@@ -205,8 +208,8 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.calculateColumnDefs();
     this.rowData = //this.http.get('https://api.myjson.com/bins/15psn9');
-      [{"id":1,"isin":"FR0000000010","quantity":"1234","valueDate":"2018-09-10","price":35004,"lastModifiedBy":"SALES"},
-       {"id":2,"isin":"LU0000000011","quantity":"2","valueDate":"2018-09-11","price":32000.33,"lastModifiedBy":"TRADER"}];
+      [{"id":1,"direction": "Borrow Sec", "isin":"FR0000000010","quantity":"1234","valueDate":"2018-09-10","price":35004,"lastModifiedBy":"SALES"},
+       {"id":2,"direction": "Lend Sec", "isin":"LU0000000011","quantity":"2","valueDate":"2018-09-11","price":32000.33,"lastModifiedBy":"TRADER"}];
   }
 
     getSelectedRows() {
