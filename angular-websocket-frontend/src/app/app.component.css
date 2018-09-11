@@ -2,7 +2,7 @@
 .chat-container{
   height: 25vh;
 #  width: 100vw;
-  width: 2400px;
+  width: 2800px;
 }
 .chat{
   float: left;
@@ -11,6 +11,7 @@
   width: 50%;
   height: 100%;
   border: 1px solid grey;
+  overflow: scroll;
 }
 
 ag-grid-angular {

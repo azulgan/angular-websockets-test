@@ -160,27 +160,51 @@ export class AppComponent implements OnInit {
           };
     if (this.role == this.ROLE_TRADER) {
       this.columnDefs = [
-          {headerName: 'Direction', field: 'direction', editable: false, cellClassRules: myClassRules },
-          {headerName: 'ISIN', field: 'isin', editable: false, cellClassRules: myClassRules },
-          {headerName: 'Quantity', field: 'quantity', editable: false, cellClass: 'grid-right-align',
-              cellClassRules: myClassRules, valueFormatter: this.myNumberFormatter },
-          {headerName: 'Value Date', field: 'valueDate', editable: true, cellClassRules: myClassRules },
-          {headerName: 'Price', field: 'price', editable: true, cellClass: 'grid-right-align', cellClassRules: myClassRules,
-              valueFormatter: this.myPriceFormatter }
+          {headerName: 'Direction', field: 'direction', editable: false, cellClassRules: myClassRules, width: 90 },
+          {headerName: 'ISIN', field: 'isin', editable: false, cellClassRules: myClassRules, width: 100 },
+          {headerName: 'Nominal (M)', field: 'nominal', editable: false, cellClass: 'grid-right-align',
+              cellClassRules: myClassRules, valueFormatter: this.myNumberFormatter, width: 100 },
+          {headerName: 'Start Date', field: 'startDate', editable: false, cellClassRules: myClassRules, width: 90 },
+          {headerName: 'End Date', field: 'endDate', editable: false, cellClassRules: myClassRules, width: 90 },
+          {headerName: 'Rate (%)', field: 'rate', editable: true, cellClass: 'grid-right-align', cellClassRules: myClassRules,
+              width: 120 },
+          {headerName: 'All in Price (%)', field: 'allInPrice', editable: true, cellClass: 'grid-right-align',
+              cellClassRules: myClassRules, valueFormatter: this.myPriceFormatter, width: 120 },
+          {headerName: 'HairCut (%)', field: 'hairCut', editable: true, cellClass: 'grid-right-align',
+              cellClassRules: myClassRules, valueFormatter: this.myPriceFormatter, width: 120 },
+          {headerName: 'Call P. (d)', field: 'callPeriod', editable: true, cellClass: 'grid-right-align', cellClassRules: myClassRules,
+              valueFormatter: this.myNumberFormatter, width: 120 },
+          {headerName: 'Substituable', field: 'substituable', editable: true, cellClassRules: myClassRules,
+              width: 80 },
+          {headerName: 'Cash CCY', field: 'cashCCY', editable: true, cellClassRules: myClassRules, width: 60,
+              cellEditor: 'agSelectCellEditor', cellEditorParams: { values: ['EUR', 'USD', 'JPY', 'GBP' ] }, },
+          {headerName: 'Traded/Lost', field: 'tradedLost', editable: true, cellClassRules: myClassRules, width: 60,
+              cellEditor: 'agSelectCellEditor', cellEditorParams: { values: ['-', 'Traded', 'Lost' ] }, },
       ];
     }
     else {
       this.columnDefs = [
           {headerName: 'Direction', field: 'direction', checkboxSelection: true, editable: true, cellClassRules: myClassRules,
-             cellEditor: 'agSelectCellEditor', cellEditorParams: { values: ['Borrow Sec', 'Lend Sec' ] } },
-          {headerName: 'ISIN', field: 'isin', editable: true, cellClassRules: myClassRules },
-          {headerName: 'Quantity', field: 'quantity', editable: true, cellClass: 'grid-right-align', cellClassRules: myClassRules,
-              valueFormatter: this.myNumberFormatter },
-          {headerName: 'Value Date', field: 'valueDate', editable: true, cellClassRules: myClassRules },
-          {headerName: 'Price', field: 'price', editable: false, cellClass: 'grid-right-align', cellClassRules: myClassRules,
-              valueFormatter: this.myPriceFormatter }
+             cellEditor: 'agSelectCellEditor', cellEditorParams: { values: ['Borrow Sec', 'Lend Sec' ] }, width: 120 },
+          {headerName: 'ISIN', field: 'isin', editable: true, cellClassRules: myClassRules, width: 120 },
+          {headerName: 'Nominal (M)', field: 'nominal', editable: true, cellClass: 'grid-right-align', cellClassRules: myClassRules,
+              valueFormatter: this.myNumberFormatter, width: 100 },
+          {headerName: 'Start Date', field: 'startDate', editable: true, cellClassRules: myClassRules, width: 100 },
+          {headerName: 'End Date', field: 'endDate', editable: true, cellClassRules: myClassRules, width: 100 },
+          {headerName: 'Rate (%)', field: 'rate', editable: false, cellClass: 'grid-right-align', cellClassRules: myClassRules,
+              width: 120 },
+          {headerName: 'All in Price (%)', field: 'allInPrice', editable: false, cellClass: 'grid-right-align', cellClassRules: myClassRules,
+              valueFormatter: this.myPriceFormatter, width: 120 },
+          {headerName: 'Hair Cut (%)', field: 'hairCut', editable: false, cellClass: 'grid-right-align', cellClassRules: myClassRules,
+              valueFormatter: this.myPriceFormatter, width: 120 },
+          {headerName: 'Call P. (d)', field: 'callPeriod', editable: false, cellClass: 'grid-right-align', cellClassRules: myClassRules,
+              valueFormatter: this.myNumberFormatter, width: 90 },
+          {headerName: 'Substituable', field: 'substituable', editable: false, cellClassRules: myClassRules,
+              width: 80 },
+          {headerName: 'Cash CCY', field: 'cashCCY', editable: false, cellClassRules: myClassRules, width: 60 },
+          {headerName: 'Traded/Lost', field: 'tradedLost', editable: false, cellClassRules: myClassRules, width: 60 },
       ];
-      // todo add handler to remove the price if isin or quantity are modified. And also ignore responses from server if changed since request
+      // todo add handler to remove the price if isin or nominal are modified. And also ignore responses from server if changed since request
     }
   }
 
@@ -208,14 +232,16 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.calculateColumnDefs();
     this.rowData = //this.http.get('https://api.myjson.com/bins/15psn9');
-      [{"id":1,"direction": "Borrow Sec", "isin":"FR0000000010","quantity":"1234","valueDate":"2018-09-10","price":35004,"lastModifiedBy":"SALES"},
-       {"id":2,"direction": "Lend Sec", "isin":"LU0000000011","quantity":"2","valueDate":"2018-09-11","price":32000.33,"lastModifiedBy":"TRADER"}];
+      [{"id":1,"direction": "Borrow Sec", "isin":"FR0000000010","nominal":"1234","startDate":"2018-09-10","endDate":"2018-10-10",
+          "rate":"3.55", "allInPrice": 2.5, "hairCut": 5, "callPeriod": 30, "substituable": 'Y', "cashCCY": "USD", "tradedLost": "-", "lastModifiedBy":"SALES"},
+       {"id":2,"direction": "Lend Sec", "isin":"LU0000000011","nominal":"2","startDate":"2018-09-11","endDate":"2018-12-10",
+          "rate":"OBF - 1.2","allInPrice": 0.3,"hairCut": 4,"callPeriod": 1,"substituable": "N", "cashCCY": "EUR", "tradedLost": "Lost", "lastModifiedBy":"TRADER"}];
   }
 
     getSelectedRows() {
         const selectedNodes = this.agGrid.api.getSelectedNodes();
         const selectedData = selectedNodes.map( node => node.data );
-        const selectedDataStringPresentation = selectedData.map( node => node.isin + ' ' + node.quantity + ' ' + node.price).join(', ');
+        const selectedDataStringPresentation = selectedData.map( node => node.isin + ' ' + node.nominal + ' ' + node.price).join(', ');
         alert(`Selected nodes: ${selectedDataStringPresentation}`);
     }
 
@@ -233,7 +259,7 @@ export class AppComponent implements OnInit {
       var api = this.agGrid.api;
       var newData = this.rowData;
       const newRow = newData.length;
-      newData[newData.length]={ "id": this.nextId, "isin": "", quantity: "0.0", "price": "N/R", "lastModifiedBy": this.role};
+      newData[newData.length]={ "id": this.nextId, "isin": "", nominal: "0.0", "price": "N/R", "lastModifiedBy": this.role};
       this.nextId++;
       this.newData(newData);
       //alert( this.rowData + "," + this.rowData.length);
@@ -287,7 +313,7 @@ export class AppComponent implements OnInit {
         let line = selectedRow;
         if (line.lastModifiedBy === "TRADER") {
           removeValFromIndex[removeValFromIndex.length] = selectedRow.id;
-          removedLinesData[removedLinesData.length] = line.isin + "/" + line.quantity + "/" + line.valueDate + "/" + line.price + "\n";
+          removedLinesData[removedLinesData.length] = line.isin + "/" + line.nominal + "/" + line.startDate + "/" + line.price + "\n";
         }
         else {
           removedLinesData[removedLinesData.length] = "Can't select line " + index + ", not validated by trader" + "\n";

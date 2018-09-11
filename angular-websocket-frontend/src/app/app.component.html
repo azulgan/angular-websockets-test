@@ -12,7 +12,7 @@
 </div>
 <ag-grid-angular
   #agGrid
-  style="width: 1200px; height: 300px;"
+  style="width: 1400px; height: 300px; overflow: scroll"
   class="ag-theme-balham"
   [enableSorting]="true"
   [enableFilter]="true"
@@ -31,7 +31,7 @@
 </ag-grid-angular>
 <div style="text-align:center">
   <div class="chat-container">
-    <div class="chat">
+    <div class="chat" #scrollMe [scrollTop]="scrollMe.scrollHeight">
       <div class="message"></div>
     </div>
   </div>
