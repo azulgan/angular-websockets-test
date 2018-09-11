@@ -1,6 +1,7 @@
 <hr />
 <div>POC Settings zone: I am a {{ role }}<button (click)="switchRole()">SwitchRole</button>
-  <div style="float: right">Chat color: <input [(ngModel)]="clientColor" [style.color]="clientColor"/><button (click)="switchColor()">Change</button></div>
+  <div style="float: right">Name: <input [(ngModel)]="myName" /> <button (click)="switchName()">Random</button></div>
+  <div style="float: right">Chat color: <input [(ngModel)]="clientColor" [style.color]="clientColor"/><button (click)="switchColor()">Random</button></div>
 </div>
 <hr />
 <div>
@@ -42,7 +43,7 @@
 
     <div class="send" (click)="sendMessage(name.value, input.value)">
     </div>
-    <input  id="name" type="hidden" value="{{ role }}" #name />              <!-- {{ clientId }} -->
+    <input  id="name" type="hidden" value="{{ myName }} ({{role}})" #name />              <!-- {{ clientId }} -->
     <input class="chat" id="input" type="text" #input (keyup.enter)="sendMessage(name.value, input.value)" />
 
   </div>

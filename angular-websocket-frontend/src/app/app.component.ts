@@ -24,6 +24,7 @@ export class AppComponent implements OnInit {
 
   private ROLE_TRADER = "TRADER";
   private ROLE_SALES = "SALES";
+  private static String[] possibleNames = [ "Stephane", "Joel", "Karim", "Herbert", "Amit", "Armel", "Sofiane", "Kante" ];
 
   public myNavigation; // defined in the constructor
   role = this.ROLE_SALES;
@@ -34,6 +35,7 @@ export class AppComponent implements OnInit {
   private nextId = 3;
   public myNumberFormatter;
   public myPriceFormatter;
+  public String myMame;
 
   constructor(@Inject(DOCUMENT) private document, private http: HttpClient) {
     if (document.location.port == 4200) {
@@ -47,7 +49,7 @@ export class AppComponent implements OnInit {
     this.calculateColumnDefs();
     this.clientId = this.makeid(10);
     this.clientColor = this.makeColor();
-
+    this.myName = this.makeName();
     this.myNavigation = function myNavigation(params) {
        var previousCell = params.previousCellDef;
        var suggestedNextCell = params.nextCellDef;
@@ -147,6 +149,8 @@ export class AppComponent implements OnInit {
       this.role = this.ROLE_TRADER;
     }
     this.calculateColumnDefs();
+    this.switchName();
+    this.switchColor();
   }
   assignRole(role) {
     this.role = role;
@@ -364,7 +368,13 @@ export class AppComponent implements OnInit {
       var possible = "ABCDEF0123456789";
       return "#" + this.makeRandom(6, possible);
     }
+    makeName() {
+      return this.possibleNames[Math.floor(Math.random() * this.possibleNames.length)];
+    }
     switchColor() {
       this.clientColor = this.makeColor();
+    }
+    switchName() {
+      this.myName = this.makeName();
     }
 }
