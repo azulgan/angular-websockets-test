@@ -24,24 +24,25 @@ export class AppComponent implements OnInit {
 
   private ROLE_TRADER = "TRADER";
   private ROLE_SALES = "SALES";
-  private static String[] possibleNames = [ "Stephane", "Joel", "Karim", "Herbert", "Amit", "Armel", "Sofiane", "Kante" ];
+  private static possibleNames;
 
   public myNavigation; // defined in the constructor
-  role = this.ROLE_SALES;
+  public role = this.ROLE_SALES;
 
-  columnDefs = null;
+  private columnDefs = null;
   readonly clientId;
   public clientColor;
   private nextId = 3;
   public myNumberFormatter;
   public myPriceFormatter;
-  public String myMame;
+  public myMame;
 
   constructor(@Inject(DOCUMENT) private document, private http: HttpClient) {
     if (document.location.port == 4200) {
       console.log("adjusting ws port to 7649 since the current server is :4200");
       this.wsPort = 7649;
     }
+    this.possibleNames = [ "Stephane", "Joel", "Karim", "Herbert", "Amit", "Armel", "Sofiane", "Kante" ];
     this.serverUrl = document.location.protocol +'//'+ document.location.hostname +
                     ':' + this.wsPort + '/socket';
     console.log(this.serverUrl);
