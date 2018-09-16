@@ -24,18 +24,18 @@ export class AppComponent implements OnInit {
 
   private ROLE_TRADER = "TRADER";
   private ROLE_SALES = "SALES";
-  private static possibleNames;
+  private possibleNames;
 
   public myNavigation; // defined in the constructor
   public role = this.ROLE_SALES;
 
-  private columnDefs = null;
+  public columnDefs = null;
   readonly clientId;
   public clientColor;
   private nextId = 3;
   public myNumberFormatter;
   public myPriceFormatter;
-  public myMame;
+  public myName;
 
   constructor(@Inject(DOCUMENT) private document, private http: HttpClient) {
     if (document.location.port == 4200) {
@@ -160,12 +160,19 @@ export class AppComponent implements OnInit {
 
   calculateColumnDefs() {
     let myClassRules = {
+            'lost': function(params) { return params.data.tradedLost == 'Lost'; },
+            'traded': function(params) { return params.data.tradedLost == 'Traded'; },
             'trader': function(params) { return params.data.lastModifiedBy == 'TRADER'; },
             'sales': function(params) { return params.data.lastModifiedBy == 'SALES'; },
+            'validated' : function(params) {
+              let ret = params.data.validatedBy != '';
+              //console.log('validatedBy = ' + params.data.validatedBy + '; ' + ret);
+              return ret;
+            },
           };
     if (this.role == this.ROLE_TRADER) {
       this.columnDefs = [
-          {headerName: 'Direction', field: 'direction', editable: false, cellClassRules: myClassRules, width: 90 },
+          {headerName: 'Direction', field: 'direction', checkboxSelection: true, editable: false, cellClassRules: myClassRules, width: 90 },
           {headerName: 'ISIN', field: 'isin', editable: false, cellClassRules: myClassRules, width: 100 },
           {headerName: 'Nominal (M)', field: 'nominal', editable: false, cellClass: 'grid-right-align',
               cellClassRules: myClassRules, valueFormatter: this.myNumberFormatter, width: 100 },
@@ -183,8 +190,9 @@ export class AppComponent implements OnInit {
               width: 80 },
           {headerName: 'Cash CCY', field: 'cashCCY', editable: true, cellClassRules: myClassRules, width: 60,
               cellEditor: 'agSelectCellEditor', cellEditorParams: { values: ['EUR', 'USD', 'JPY', 'GBP' ] }, },
-          {headerName: 'Traded/Lost', field: 'tradedLost', editable: true, cellClassRules: myClassRules, width: 60,
+          {headerName: 'Traded/Lost', field: 'tradedLost', editable: false, cellClassRules: myClassRules, width: 80,
               cellEditor: 'agSelectCellEditor', cellEditorParams: { values: ['-', 'Traded', 'Lost' ] }, },
+          {headerName: 'Validated by', field: 'validatedBy', editable: false, cellClassRules: myClassRules, width: 100 },
       ];
     }
     else {
@@ -207,7 +215,8 @@ export class AppComponent implements OnInit {
           {headerName: 'Substituable', field: 'substituable', editable: false, cellClassRules: myClassRules,
               width: 80 },
           {headerName: 'Cash CCY', field: 'cashCCY', editable: false, cellClassRules: myClassRules, width: 60 },
-          {headerName: 'Traded/Lost', field: 'tradedLost', editable: false, cellClassRules: myClassRules, width: 60 },
+          {headerName: 'Traded/Lost', field: 'tradedLost', editable: false, cellClassRules: myClassRules, width: 80 },
+          {headerName: 'Validated by', field: 'validatedBy', editable: false, cellClassRules: myClassRules, width: 100 },
       ];
       // todo add handler to remove the price if isin or nominal are modified. And also ignore responses from server if changed since request
     }
@@ -238,9 +247,11 @@ export class AppComponent implements OnInit {
     this.calculateColumnDefs();
     this.rowData = //this.http.get('https://api.myjson.com/bins/15psn9');
       [{"id":1,"direction": "Borrow Sec", "isin":"FR0000000010","nominal":"1234","startDate":"2018-09-10","endDate":"2018-10-10",
-          "rate":"3.55", "allInPrice": 2.5, "hairCut": 5, "callPeriod": 30, "substituable": 'Y', "cashCCY": "USD", "tradedLost": "-", "lastModifiedBy":"SALES"},
+          "rate":"3.55", "allInPrice": 2.5, "hairCut": 5, "callPeriod": 30, "substituable": 'Y', "cashCCY": "USD",
+          "tradedLost": "-", "lastModifiedBy":"SALES", "validatedBy": ""},
        {"id":2,"direction": "Lend Sec", "isin":"LU0000000011","nominal":"2","startDate":"2018-09-11","endDate":"2018-12-10",
-          "rate":"OBF - 1.2","allInPrice": 0.3,"hairCut": 4,"callPeriod": 1,"substituable": "N", "cashCCY": "EUR", "tradedLost": "Lost", "lastModifiedBy":"TRADER"}];
+          "rate":"OBF - 1.2","allInPrice": 0.3,"hairCut": 4,"callPeriod": 1,"substituable": "N", "cashCCY": "EUR", "tradedLost": "Lost", "lastModifiedBy":"TRADER",
+          "validatedBy": "" }];
   }
 
     getSelectedRows() {
@@ -264,7 +275,9 @@ export class AppComponent implements OnInit {
       var api = this.agGrid.api;
       var newData = this.rowData;
       const newRow = newData.length;
-      newData[newData.length]={ "id": this.nextId, "isin": "", nominal: "0.0", "price": "N/R", "lastModifiedBy": this.role};
+      newData[newData.length]={ "id": this.nextId, "isin": "", nominal: "0.0", "price": "N/R", "lastModifiedBy": this.role,
+        "rate": "-", "allInPrice": "0", "hairCut": "0", "callPeriod": "30",
+        "tradedLost": "-"};
       this.nextId++;
       this.newData(newData);
       //alert( this.rowData + "," + this.rowData.length);
@@ -296,7 +309,8 @@ export class AppComponent implements OnInit {
       api.setRowData(data);
     }
 
-    deleteSelectedRows() {
+    // disabling the real delete, just switchin to 'Lost' state
+    completelyDeleteSelectedRows() {
       var api = this.agGrid.api;
       const rows = api.getSelectedRows();
       var data = this.rowData;
@@ -305,10 +319,46 @@ export class AppComponent implements OnInit {
         removeValFromIndex[removeValFromIndex.length] = selectedRow.id;
       });
       this.removeFromArray(data, removeValFromIndex);
-      this.newData(data);
       this.sendUpdate(this.role, data, undefined, undefined);
     }
+    deleteSelectedRows() {
+      var api = this.agGrid.api;
+      const rows = api.getSelectedRows();
+      const selectedData = rows.map( node => node.data );
+      for (let entry of rows) {
+        entry.tradedLost = 'Lost';
+      }
+      this.sendUpdate(this.role, this.rowData, undefined, undefined);
+    }
+    validateSelectedRows() {
+      var api = this.agGrid.api;
+      const rows = api.getSelectedRows();
+      const selectedData = rows.map( node => node.data );
+     for (let entry of rows) {
+        entry.validatedBy = this.myName;
+        entry.lastModifiedBy = "TRADER";
+      }
+      this.sendUpdate(this.role, this.rowData, undefined, undefined);
+    }
     executeSelectedRows() {
+      var api = this.agGrid.api;
+      const rows = api.getSelectedRows();
+      const selectedData = rows.map( node => node.data );
+      let updateOccured = false;
+      for (let entry of rows) {
+        if (entry.validatedBy != '') {
+          entry.tradedLost = 'Traded';
+          updateOccured = true;
+        }
+        else {
+          alert("This trade is not yet validated by the trader");
+        }
+      }
+      if (updateOccured) {
+        this.sendUpdate(this.role, this.rowData, undefined, undefined);
+      }
+    }
+    oldExecuteSelectedRows() {
       var api = this.agGrid.api;
       const rows = api.getSelectedRows();
       var data = this.rowData;
@@ -333,7 +383,9 @@ export class AppComponent implements OnInit {
     onCellValueChanged(event) {
       console.log(event);
       //console.log(this.rowData);
-      this.rowData[event.rowIndex].lastModifiedBy = this.role;
+      let row = this.rowData[event.rowIndex]
+      row.lastModifiedBy = this.role;
+      row.validatedBy = '';
       this.sendUpdate(this.role, this.rowData, undefined, event.colId);
     }
     removeFromArray(array, ids) {

@@ -8,11 +8,26 @@
 
 
 
+
 .trader{
   background-color: lightgreen;
 }
+.validated {
+  background-color: green;
+  color: lightgrey;
+}
+
 .sales {
   background-color: orange;
+}
+
+.lost {
+  background-color: grey;
+  color: lightgrey;
+}
+.traded {
+  background-color: blue;
+  color: lightgrey;
 }
 
 .message {

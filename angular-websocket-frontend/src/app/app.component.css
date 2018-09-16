@@ -51,3 +51,6 @@ input.chat{
 .trader{
   color:red;
 }
+.validated {
+  color: blue;
+}
