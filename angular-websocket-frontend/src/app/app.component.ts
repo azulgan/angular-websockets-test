@@ -24,7 +24,8 @@ export class AppComponent implements OnInit {
 
   private ROLE_TRADER = "TRADER";
   private ROLE_SALES = "SALES";
-  private possibleNames;
+  private possibleNamesSales;
+  private possibleNamesTrader;
 
   public myNavigation; // defined in the constructor
   public role = this.ROLE_SALES;
@@ -42,7 +43,8 @@ export class AppComponent implements OnInit {
       console.log("adjusting ws port to 7649 since the current server is :4200");
       this.wsPort = 7649;
     }
-    this.possibleNames = [ "Stephane", "Joel", "Karim", "Herbert", "Amit", "Armel", "Sofiane", "Kante" ];
+    this.possibleNamesSales = [ "Stephane", "Sam", "Sofiane", "Solen" ];
+    this.possibleNamesTrader = [ "Tristan", "Thierry", "Tiago", "Tamara" ];
     this.serverUrl = document.location.protocol +'//'+ document.location.hostname +
                     ':' + this.wsPort + '/socket';
     console.log(this.serverUrl);
@@ -164,8 +166,9 @@ export class AppComponent implements OnInit {
             'traded': function(params) { return params.data.tradedLost == 'Traded'; },
             'trader': function(params) { return params.data.lastModifiedBy == 'TRADER'; },
             'sales': function(params) { return params.data.lastModifiedBy == 'SALES'; },
+            'validatedBuddy': function(params) { return params.data.validatedBy != '' && params.data.validatedBy === params.value; },
             'validated' : function(params) {
-              let ret = params.data.validatedBy != '';
+              let ret = params.data.validatedBy != '' && params.data.validatedBy != params.value;
               //console.log('validatedBy = ' + params.data.validatedBy + '; ' + ret);
               return ret;
             },
@@ -192,7 +195,7 @@ export class AppComponent implements OnInit {
               cellEditor: 'agSelectCellEditor', cellEditorParams: { values: ['EUR', 'USD', 'JPY', 'GBP' ] }, },
           {headerName: 'Traded/Lost', field: 'tradedLost', editable: false, cellClassRules: myClassRules, width: 80,
               cellEditor: 'agSelectCellEditor', cellEditorParams: { values: ['-', 'Traded', 'Lost' ] }, },
-          {headerName: 'Validated by', field: 'validatedBy', editable: false, cellClassRules: myClassRules, width: 100 },
+          {headerName: 'Buddy', field: 'lastSales', editable: false, cellClassRules: myClassRules, width: 100 },
       ];
     }
     else {
@@ -216,7 +219,7 @@ export class AppComponent implements OnInit {
               width: 80 },
           {headerName: 'Cash CCY', field: 'cashCCY', editable: false, cellClassRules: myClassRules, width: 60 },
           {headerName: 'Traded/Lost', field: 'tradedLost', editable: false, cellClassRules: myClassRules, width: 80 },
-          {headerName: 'Validated by', field: 'validatedBy', editable: false, cellClassRules: myClassRules, width: 100 },
+          {headerName: 'Buddy', field: 'lastTrader', editable: false, cellClassRules: myClassRules, width: 100 },
       ];
       // todo add handler to remove the price if isin or nominal are modified. And also ignore responses from server if changed since request
     }
@@ -248,10 +251,10 @@ export class AppComponent implements OnInit {
     this.rowData = //this.http.get('https://api.myjson.com/bins/15psn9');
       [{"id":1,"direction": "Borrow Sec", "isin":"FR0000000010","nominal":"1234","startDate":"2018-09-10","endDate":"2018-10-10",
           "rate":"3.55", "allInPrice": 2.5, "hairCut": 5, "callPeriod": 30, "substituable": 'Y', "cashCCY": "USD",
-          "tradedLost": "-", "lastModifiedBy":"SALES", "validatedBy": ""},
+          "tradedLost": "-", "lastModifiedBy":this.ROLE_SALES, "validatedBy": "", "lastSales": "Simon"},
        {"id":2,"direction": "Lend Sec", "isin":"LU0000000011","nominal":"2","startDate":"2018-09-11","endDate":"2018-12-10",
           "rate":"OBF - 1.2","allInPrice": 0.3,"hairCut": 4,"callPeriod": 1,"substituable": "N", "cashCCY": "EUR", "tradedLost": "Lost", "lastModifiedBy":"TRADER",
-          "validatedBy": "" }];
+          "validatedBy": "", "lastSales": "Soria" }];
   }
 
     getSelectedRows() {
@@ -296,6 +299,10 @@ export class AppComponent implements OnInit {
         newEntry.id = this.nextId;
         this.nextId++;
         newEntry.lastModifiedBy = this.role;
+        if (this.role === this.ROLE_SALES) {
+          newEntry.lastSales = this.myName;
+        }
+        newEntry.validatedBy = '';
         newData[newData.length] = newEntry;
       }
       this.newData(newData);
@@ -336,8 +343,10 @@ export class AppComponent implements OnInit {
       const selectedData = rows.map( node => node.data );
      for (let entry of rows) {
         entry.validatedBy = this.myName;
-        entry.lastModifiedBy = "TRADER";
+        entry.lastTrader = this.myName;
+        entry.lastModifiedBy = this.ROLE_TRADER;
       }
+      this.newData(this.rowData);
       this.sendUpdate(this.role, this.rowData, undefined, undefined);
     }
     executeSelectedRows() {
@@ -355,6 +364,7 @@ export class AppComponent implements OnInit {
         }
       }
       if (updateOccured) {
+        this.newData(this.rowData);
         this.sendUpdate(this.role, this.rowData, undefined, undefined);
       }
     }
@@ -366,7 +376,7 @@ export class AppComponent implements OnInit {
       var removedLinesData = [];
       rows.forEach((selectedRow, index) => {
         let line = selectedRow;
-        if (line.lastModifiedBy === "TRADER") {
+        if (line.lastModifiedBy === this.ROLE_TRADER) {
           removeValFromIndex[removeValFromIndex.length] = selectedRow.id;
           removedLinesData[removedLinesData.length] = line.isin + "/" + line.nominal + "/" + line.startDate + "/" + line.price + "\n";
         }
@@ -386,6 +396,13 @@ export class AppComponent implements OnInit {
       let row = this.rowData[event.rowIndex]
       row.lastModifiedBy = this.role;
       row.validatedBy = '';
+      if (this.role === this.ROLE_TRADER) {
+        row.lastTrader = this.myName;
+      }
+      else {
+        row.lastSales = this.myName;
+      }
+      this.newData(this.rowData);
       this.sendUpdate(this.role, this.rowData, undefined, event.colId);
     }
     removeFromArray(array, ids) {
@@ -421,8 +438,11 @@ export class AppComponent implements OnInit {
       var possible = "ABCDEF0123456789";
       return "#" + this.makeRandom(6, possible);
     }
+    makeRandomName(list) {
+      return list[Math.floor(Math.random() * list.length)];
+    }
     makeName() {
-      return this.possibleNames[Math.floor(Math.random() * this.possibleNames.length)];
+      return this.makeRandomName(this.role === this.ROLE_TRADER ? this.possibleNamesTrader : this.possibleNamesSales);
     }
     switchColor() {
       this.clientColor = this.makeColor();
