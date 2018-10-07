@@ -31,7 +31,20 @@
 .lost {
   background-color: grey;
   color: lightgrey;
+  animation:         lost-ANIMATION 1s 3; /* IE 10+, Fx 29+ */
 }
+
+@-webkit-keyframes lost-ANIMATION {
+  0%, 49% {
+    background-color: lightgrey;
+    color: black;
+  }
+  50%, 100% {
+    background-color: grey;
+  }
+}
+
+
 .traded {
   background-color: blue;
   color: lightgrey;
