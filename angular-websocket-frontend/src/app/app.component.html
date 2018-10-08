@@ -5,12 +5,12 @@
 </div>
 <hr />
 <div>
-<button (click)="getSelectedRows()">Get Selected Rows</button>
-<button (click)="addEmptyRow()">Add row</button>
-<button (click)="duplicateRow()">Duplicate row</button>
-<button (click)="deleteSelectedRows()" *ngIf="role == 'SALES'">Delete selected rows</button>
-<button (click)="validateSelectedRows()" *ngIf="role == 'TRADER'">Validate selected rows</button>
-<button (click)="executeSelectedRows()" *ngIf="role == 'SALES'">Execute selected rows</button>
+<!--<button (click)="getSelectedRows()">Get Selected Rows</button>-->
+<button (click)="addEmptyRow()">New RfQ</button>
+<button (click)="duplicateRow()">Duplicate RfQ</button>
+<button (click)="deleteSelectedRows()" *ngIf="role == 'SALES'">Delete selected RfQs</button>
+<button (click)="validateSelectedRows()" *ngIf="role == 'TRADER'">Validate selected RfQs</button>
+<button (click)="executeSelectedRows()" *ngIf="role == 'SALES'">Execute selected RfQs</button>
 </div>
 <ag-grid-angular
   #agGrid

@@ -39,7 +39,7 @@
 .lost {
   background-color: grey;
   color: lightgrey;
-  animation:         lost-ANIMATION 1s 3; /* IE 10+, Fx 29+ */
+#  animation:         lost-ANIMATION 1s 3; /* IE 10+, Fx 29+ */
 }
 
 @-webkit-keyframes lost-ANIMATION {

@@ -123,9 +123,12 @@ export class AppComponent implements OnInit {
             // array update received
             console.log(jsonMessage);
             let newData = jsonMessage.body;
-            for (let entry of newData) {
-              // ag insert test 'clientId is me' here
-              entry.meChangingLast = (entry.clientId === that.clientId);
+            let now = Date.now();
+            for (let line of newData) {
+              line.meChangingLast = (line.clientId === that.clientId);
+              // here calculation regarding the field change date... might wait to have proper events sent
+              // to finish the line
+              //line.
             }
             if (jsonMessage.clientId != this.clientId) {
               that.newData(newData);
@@ -168,11 +171,10 @@ export class AppComponent implements OnInit {
   calculateColumnDefs() {
     let myClassRules = {
             'recent': function(params) {
-            console.log('me changed last ' + params.data.meChangingLast + ' ' + ret + ' ' + params.data.id);
-            let ret = params.data.lastModification != undefined && !params.data.meChangingLast ? Date.now() - params.data.lastModification < 5000 : false;
-
-              //console.log(params.data);
-              return ret; },
+              let ret = params.data.lastModification != undefined && !params.data.meChangingLast ?
+                Date.now() - params.data.lastModification < 5000 : false;
+              return ret;
+            },
             'lost': function(params) { return params.data.tradedLost == 'Lost'; },
             'traded': function(params) { return params.data.tradedLost == 'Traded'; },
             'trader': function(params) { return params.data.lastModifiedBy == 'TRADER'; },
