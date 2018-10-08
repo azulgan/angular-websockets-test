@@ -7,8 +7,6 @@
 .body { float: left; }
 
 
-
-
 .trader{
   background-color: lightgreen;
 }
@@ -26,6 +24,16 @@
 
 .sales {
   background-color: orange;
+}
+
+.recent {
+  animation: recent-animation 3s 4;
+}
+
+@-webkit-keyframes recent-animation {
+  25%,74% {
+    background-color: red;
+  }
 }
 
 .lost {

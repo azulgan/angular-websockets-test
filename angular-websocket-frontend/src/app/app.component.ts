@@ -122,8 +122,13 @@ export class AppComponent implements OnInit {
           else {
             // array update received
             console.log(jsonMessage);
+            let newData = jsonMessage.body;
+            for (let entry of newData) {
+              // ag insert test 'clientId is me' here
+              entry.meChangingLast = (entry.clientId === that.clientId);
+            }
             if (jsonMessage.clientId != this.clientId) {
-              that.newData(jsonMessage.body);
+              that.newData(newData);
               if (jsonMessage.rowIndex != undefined && jsonMessage.columnName != undefined) {
                 this.hilightValues(jsonMessage.rowIndex, jsonMessage.columnName);
               }
@@ -162,6 +167,12 @@ export class AppComponent implements OnInit {
 
   calculateColumnDefs() {
     let myClassRules = {
+            'recent': function(params) {
+            console.log('me changed last ' + params.data.meChangingLast + ' ' + ret + ' ' + params.data.id);
+            let ret = params.data.lastModification != undefined && !params.data.meChangingLast ? Date.now() - params.data.lastModification < 5000 : false;
+
+              //console.log(params.data);
+              return ret; },
             'lost': function(params) { return params.data.tradedLost == 'Lost'; },
             'traded': function(params) { return params.data.tradedLost == 'Traded'; },
             'trader': function(params) { return params.data.lastModifiedBy == 'TRADER'; },
@@ -238,6 +249,11 @@ export class AppComponent implements OnInit {
     $('#input').val('');
   }
   sendUpdate(who, allData, rowIndex, columnName) {
+    console.log("Sending update relative to " + rowIndex);
+    allData[rowIndex].clientId = this.clientId;
+    if (rowIndex != undefined) {
+      allData[rowIndex].lastModification = Date.now();
+    }
     let json = ParseJson.stringify({ author: who, clientId: this.clientId, isUpdate: true, body: allData, rowIndex: rowIndex, columnName: columnName });
     this.stompClient.send("/app/send/message", {}, json);
   }
@@ -403,7 +419,7 @@ export class AppComponent implements OnInit {
         row.lastSales = this.myName;
       }
       this.newData(this.rowData);
-      this.sendUpdate(this.role, this.rowData, undefined, event.colId);
+      this.sendUpdate(this.role, this.rowData, event.rowIndex, event.colId);
     }
     removeFromArray(array, ids) {
       var ascOrderedIndexArray = [];
