@@ -188,7 +188,8 @@ export class AppComponent implements OnInit {
           };
     if (this.role == this.ROLE_TRADER) {
       this.columnDefs = [
-          {headerName: 'Direction', field: 'direction', checkboxSelection: true, editable: false, cellClassRules: myClassRules, width: 90 },
+          {headerName: 'SG Way', field: 'direction', checkboxSelection: true, editable: false, cellClassRules: myClassRules, width: 90 },
+          {headerName: 'Client', field: 'client', editable: false, cellClassRules: myClassRules, width: 120 },
           {headerName: 'ISIN', field: 'isin', editable: false, cellClassRules: myClassRules, width: 100 },
           {headerName: 'Nominal (M)', field: 'nominal', editable: false, cellClass: 'grid-right-align',
               cellClassRules: myClassRules, valueFormatter: this.myNumberFormatter, width: 100 },
@@ -213,8 +214,9 @@ export class AppComponent implements OnInit {
     }
     else {
       this.columnDefs = [
-          {headerName: 'Direction', field: 'direction', checkboxSelection: true, editable: true, cellClassRules: myClassRules,
+          {headerName: 'SG Way', field: 'direction', checkboxSelection: true, editable: true, cellClassRules: myClassRules,
              cellEditor: 'agSelectCellEditor', cellEditorParams: { values: ['Borrow Sec', 'Lend Sec' ] }, width: 120 },
+          {headerName: 'Client', field: 'client', editable: true, cellClassRules: myClassRules, width: 120 },
           {headerName: 'ISIN', field: 'isin', editable: true, cellClassRules: myClassRules, width: 120 },
           {headerName: 'Nominal (M)', field: 'nominal', editable: true, cellClass: 'grid-right-align', cellClassRules: myClassRules,
               valueFormatter: this.myNumberFormatter, width: 100 },
@@ -267,10 +269,10 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.calculateColumnDefs();
     this.rowData = //this.http.get('https://api.myjson.com/bins/15psn9');
-      [{"id":1,"direction": "Borrow Sec", "isin":"FR0000000010","nominal":"1234","startDate":"2018-09-10","endDate":"2018-10-10",
+      [{"id":1,"direction": "Borrow Sec", "client": "Harry P.", "isin":"FR0000000010","nominal":"1234","startDate":"2018-09-10","endDate":"2018-10-10",
           "rate":"3.55", "allInPrice": 2.5, "hairCut": 5, "callPeriod": 30, "substituable": 'Y', "cashCCY": "USD",
           "tradedLost": "-", "lastModifiedBy":this.ROLE_SALES, "validatedBy": "", "lastSales": "Simon"},
-       {"id":2,"direction": "Lend Sec", "isin":"LU0000000011","nominal":"2","startDate":"2018-09-11","endDate":"2018-12-10",
+       {"id":2,"direction": "Lend Sec", "client": "Golden Or", "isin":"LU0000000011","nominal":"2","startDate":"2018-09-11","endDate":"2018-12-10",
           "rate":"OBF - 1.2","allInPrice": 0.3,"hairCut": 4,"callPeriod": 1,"substituable": "N", "cashCCY": "EUR", "tradedLost": "Lost", "lastModifiedBy":"TRADER",
           "validatedBy": "", "lastSales": "Soria" }];
   }
