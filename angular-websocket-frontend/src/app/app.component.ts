@@ -466,6 +466,9 @@ export class AppComponent implements OnInit {
       this.clientColor = this.makeColor();
     }
     switchName() {
-      this.myName = this.makeName();
+      let origName = this.myName;
+      while (this.myName === origName) {
+        this.myName = this.makeName();
+      }
     }
 }

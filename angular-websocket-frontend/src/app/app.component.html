@@ -14,7 +14,7 @@
 </div>
 <ag-grid-angular
   #agGrid
-  style="width: 1400px; height: 300px; overflow: scroll"
+  style="width: 1400px; height: 400px; overflow: scroll"
   class="ag-theme-balham"
   [enableSorting]="true"
   [enableFilter]="true"
@@ -31,22 +31,25 @@
 
    -->
 </ag-grid-angular>
-<div style="text-align:center">
-  <div class="chat-container">
+<div>
+  <div>
+  <div class="send-button">
+
+    <input  id="name" type="hidden" value="{{ myName }} ({{role}})" #name />              <!-- {{ clientId }} -->
+    <input class="chat" id="input" type="text" #input (keyup.enter)="sendMessage(name.value, input.value)" />
+    <div class="send" (click)="sendMessage(name.value, input.value)">
+    </div>
+    <br/>
+
+  </div>
+  </div>
+  <div class="chat-container" style="text-align:center">
     <div class="chat" #scrollMe [scrollTop]="scrollMe.scrollHeight">
       <div class="message"></div>
     </div>
   </div>
 </div>
 
-<div class="footer">
-  <div class="send-button">
+<!--<div class="footer">-->
 
-    <div class="send" (click)="sendMessage(name.value, input.value)">
-    </div>
-    <input  id="name" type="hidden" value="{{ myName }} ({{role}})" #name />              <!-- {{ clientId }} -->
-    <input class="chat" id="input" type="text" #input (keyup.enter)="sendMessage(name.value, input.value)" />
-
-  </div>
-
-</div>
+<!--</div>-->
